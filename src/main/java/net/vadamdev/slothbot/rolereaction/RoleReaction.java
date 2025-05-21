@@ -1,13 +1,12 @@
 package net.vadamdev.slothbot.rolereaction;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.vadamdev.slothbot.utils.SlothEmbed;
+import net.vadamdev.slothbot.utils.EmbedUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,9 +45,9 @@ public class RoleReaction {
 
     protected MessageEmbed createEmbed(Guild guild) {
         final var description = new StringBuilder(this.description + switch(selectType) {
-                    case SINGLE -> "\n\n__Veuillez choisir votre rôle:__\n";
-                    case MULTIPLE -> "\n\n__Veuillez choisir votre/vos rôle(s) :__\n";
-                });
+            case SINGLE -> "\n\n__Veuillez choisir votre rôle:__\n";
+            case MULTIPLE -> "\n\n__Veuillez choisir votre/vos rôle(s) :__\n";
+        });
 
         for(RoleOption option : options) {
             final var optRole = option.toRole(guild);
@@ -58,10 +57,9 @@ public class RoleReaction {
             description.append("> " + option.icon().getName() + " : " + optRole.get().getAsMention() + "\n");
         }
 
-        return new SlothEmbed()
+        return EmbedUtils.defaultEmbed()
                 .setTitle(title)
                 .setDescription(description)
-                .setColor(SlothEmbed.NEUTRAL_COLOR)
                 .build();
     }
 
@@ -88,16 +86,14 @@ public class RoleReaction {
             switch(selectType) {
                 case MULTIPLE:
                     if(memberRoles.contains(role)) {
-                        guild.removeRoleFromMember(member, role).queue(a -> event.replyEmbeds(new EmbedBuilder()
+                        guild.removeRoleFromMember(member, role).queue(a -> event.replyEmbeds(EmbedUtils.defaultEmbed()
                                 .setTitle("Role Reaction")
-                                .setDescription("Le role " + role.getAsMention() + " vous a été retirer !")
-                                .setColor(SlothEmbed.NEUTRAL_COLOR).build()
+                                .setDescription("Le role " + role.getAsMention() + " vous a été retirer !").build()
                         ).setEphemeral(true).queue());
                     }else {
-                        guild.addRoleToMember(member, role).queue(a -> event.replyEmbeds(new EmbedBuilder()
+                        guild.addRoleToMember(member, role).queue(a -> event.replyEmbeds(EmbedUtils.defaultEmbed()
                                 .setTitle("Role Reaction")
-                                .setDescription("Le role " + role.getAsMention() + " vous a été attribuer !")
-                                .setColor(SlothEmbed.NEUTRAL_COLOR).build()
+                                .setDescription("Le role " + role.getAsMention() + " vous a été attribuer !").build()
                         ).setEphemeral(true).queue());
                     }
 
@@ -117,16 +113,14 @@ public class RoleReaction {
                     }
 
                     if(memberRoles.contains(role)) {
-                        guild.removeRoleFromMember(member, role).queue(a -> event.replyEmbeds(new EmbedBuilder()
+                        guild.removeRoleFromMember(member, role).queue(a -> event.replyEmbeds(EmbedUtils.defaultEmbed()
                                 .setTitle("Role Reaction")
-                                .setDescription("Le role " + role.getAsMention() + " vous a été retirer !")
-                                .setColor(SlothEmbed.NEUTRAL_COLOR).build()
+                                .setDescription("Le role " + role.getAsMention() + " vous a été retirer !").build()
                         ).setEphemeral(true).queue());
                     }else {
-                        guild.addRoleToMember(member, role).queue(a -> event.replyEmbeds(new EmbedBuilder()
+                        guild.addRoleToMember(member, role).queue(a -> event.replyEmbeds(EmbedUtils.defaultEmbed()
                                 .setTitle("Role Reaction")
-                                .setDescription("Le role " + role.getAsMention() + " vous a été attribuer !")
-                                .setColor(SlothEmbed.NEUTRAL_COLOR).build()
+                                .setDescription("Le role " + role.getAsMention() + " vous a été attribuer !").build()
                         ).setEphemeral(true).queue());
                     }
 

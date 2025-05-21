@@ -3,6 +3,7 @@ package net.vadamdev.slothbot.rolereaction;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Optional;
  * @since 18/07/2024
  */
 public class RoleReactionManager {
-    private final HashMap<String, RoleReaction> roleReactions;
+    private final Map<String, RoleReaction> roleReactions;
 
     public RoleReactionManager() {
         this.roleReactions = new HashMap<>();
