@@ -3,8 +3,6 @@ package net.vadamdev.slothbot;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.vadamdev.dbk.framework.DBKFramework;
 import net.vadamdev.dbk.framework.application.JDABot;
 import net.vadamdev.dbk.framework.application.annotations.AppConfig;
@@ -14,9 +12,11 @@ import net.vadamdev.slothbot.channelcreator.LockeableCreatedChannel;
 import net.vadamdev.slothbot.channelcreator.SimpleChannelCreator;
 import net.vadamdev.slothbot.channelcreator.system.ChannelCreatorManager;
 import net.vadamdev.slothbot.commands.ActivityCommand;
+import net.vadamdev.slothbot.commands.MusicCommand;
 import net.vadamdev.slothbot.commands.RoleReactionCommand;
 import net.vadamdev.slothbot.configs.MainConfig;
 import net.vadamdev.slothbot.listeners.EventListener;
+import net.vadamdev.slothbot.music.GuildMusicManager;
 import net.vadamdev.slothbot.rolereaction.RoleOption;
 import net.vadamdev.slothbot.rolereaction.RoleReaction;
 import net.vadamdev.slothbot.rolereaction.RoleReactionManager;
@@ -35,6 +35,7 @@ public class SlothBot extends JDABot {
 
     private RoleReactionManager roleReactionManager;
     private ChannelCreatorManager channelCreatorManager;
+    private GuildMusicManager musicManager;
 
     SlothBot() {
         super(() -> JDABuilder.createDefault(APP_CONFIG.TOKEN)
@@ -58,6 +59,7 @@ public class SlothBot extends JDABot {
         //Load features
         roleReactionManager = new RoleReactionManager(); registerRoleReactions();
         channelCreatorManager = new ChannelCreatorManager(jda); registerChannelCreators();
+        musicManager = new GuildMusicManager(jda);
 
         registerListeners(
                 new EventListener(roleReactionManager)
@@ -65,7 +67,8 @@ public class SlothBot extends JDABot {
 
         registerCommands(
                 new ActivityCommand(APP_CONFIG),
-                new RoleReactionCommand(roleReactionManager)
+                new RoleReactionCommand(roleReactionManager),
+                new MusicCommand(mainConfig, musicManager)
         );
     }
 
@@ -92,12 +95,20 @@ public class SlothBot extends JDABot {
         ));
     }
 
+    public MainConfig getConfig() {
+        return mainConfig;
+    }
+
     public GuildLinkService getGuildLinkService() {
         return guildLinkService;
     }
 
     public ChannelCreatorManager getChannelCreatorManager() {
         return channelCreatorManager;
+    }
+
+    public GuildMusicManager getMusicManager() {
+        return musicManager;
     }
 
     /*
