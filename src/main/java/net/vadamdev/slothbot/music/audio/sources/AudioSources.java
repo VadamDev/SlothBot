@@ -45,6 +45,15 @@ public enum AudioSources {
                     .setAllowDirectVideoIds(params.getBoolean("allowDirectVideoIds"))
                     .setAllowDirectPlaylistIds(params.getBoolean("allowDirectPlaylistIds"));
 
+            final ConfigurationSection cipherSection = params.getConfigurationSection("remoteCipher");
+            if(cipherSection.getBoolean("enabled")) {
+                String password = cipherSection.getString("password");
+                if(password != null && (password.isBlank() || password.equals("null")))
+                    password = null;
+
+                options.setRemoteCipher(cipherSection.getString("url"), password, null);
+            }
+
             //Default ones are: Music, AndroidVr, Web, WebEmbedded
             //They are from the common package of YouTube source... We are using v2 ones here and new ones for more success rate and OAuth usage
             final YoutubeAudioSourceManager result = new YoutubeAudioSourceManager(
@@ -69,6 +78,11 @@ public enum AudioSources {
             params.addDefault("allowSearch", true);
             params.addDefault("allowDirectVideoIds", true);
             params.addDefault("allowDirectPlaylistIds", true);
+
+            final ConfigurationSection cipherSection = params.createSection("remoteCipher");
+            cipherSection.addDefault("enabled", false);
+            cipherSection.addDefault("url", "http://localhost:8001");
+            cipherSection.addDefault("password", "null");
 
             final ConfigurationSection handlerSection = params.createSection("handler");
             handlerSection.addDefault("type", YoutubeAudioHandlerType.NONE.name());

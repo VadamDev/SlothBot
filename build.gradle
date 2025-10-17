@@ -17,7 +17,7 @@ compileJava.options.encoding = 'UTF-8'
 
 application.mainClass = 'net.vadamdev.slothbot.SlothBot'
 group = 'net.vadamdev.slothbot'
-version = '1.2.0'
+version = '1.2.1'
 
 repositories {
     mavenCentral()

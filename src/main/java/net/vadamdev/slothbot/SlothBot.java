@@ -82,7 +82,7 @@ public class SlothBot extends JDABot {
                 null,
                 RoleReaction.SelectType.SINGLE,
                 new RoleOption(mainConfig.MEMBER_ROLE, Emoji.fromUnicode("\uD83E\uDDF1")),
-                new RoleOption(mainConfig.FRIEND_ROLE, Emoji.fromUnicode("\uD83C\uDF20"))
+                new RoleOption(mainConfig.FRIEND_ROLE, Emoji.fromUnicode("\uD83C\uDF79"))
         ));
     }
 
