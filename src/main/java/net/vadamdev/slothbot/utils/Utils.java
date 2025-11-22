@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.EmojiUnion;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.vadamdev.dbk.framework.interactive.api.components.InteractiveComponent;
+import net.vadamdev.dbk.interactive.api.components.InteractiveComponent;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;

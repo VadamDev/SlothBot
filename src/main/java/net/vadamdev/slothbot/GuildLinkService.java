@@ -10,9 +10,8 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.vadamdev.dbk.framework.DBKFramework;
-import net.vadamdev.dbk.framework.interactive.entities.buttons.InteractiveButton;
-import net.vadamdev.dbk.framework.interactive.entities.buttons.LightweightButton;
+import net.vadamdev.dbk.interactive.entities.buttons.InteractiveButton;
+import net.vadamdev.dbk.interactive.entities.buttons.LightweightButton;
 import net.vadamdev.slothbot.utils.EmbedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,9 +67,8 @@ public class GuildLinkService {
             link(storedGuild);
         }else {
             try {
-                appConfig.setValue("GUILD_ID", "");
-                appConfig.save();
-            }catch (IOException e) {
+                appConfig.save("GUILD_ID", "");
+            }catch (IOException | IllegalAccessException e) {
                 e.printStackTrace();
             }
 
@@ -126,9 +124,8 @@ public class GuildLinkService {
         linkedGuild = Optional.of(guild.getId());
 
         try {
-            appConfig.setValue("GUILD_ID", guild.getId());
-            appConfig.save();
-        }catch (IOException e) {
+            appConfig.save("GUILD_ID", guild.getId());
+        }catch (IOException | IllegalAccessException e) {
             e.printStackTrace();
         }
 
@@ -221,16 +218,12 @@ public class GuildLinkService {
             linkedGuild = Optional.empty();
 
             try {
-                appConfig.setValue("GUILD_ID", "");
-                appConfig.setValue("WEBHOOK_LOGGER", false);
-                appConfig.setValue("WEBHOOK_URL", "");
-
-                appConfig.save();
-            }catch (IOException e) {
+                appConfig.save("GUILD_ID", "");
+            }catch (IOException | IllegalAccessException e) {
                 e.printStackTrace();
             }
 
-            DBKFramework.stop();
+            SlothBot.stop();
         }
     }
 }

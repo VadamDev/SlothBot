@@ -2,8 +2,8 @@ package net.vadamdev.slothbot;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
-import net.vadamdev.dbk.framework.config.Configuration;
-import net.vadamdev.dbk.framework.config.annotations.ConfigValue;
+import net.vadamdev.dbk.config.Configuration;
+import net.vadamdev.dbk.config.annotations.ConfigValue;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -41,10 +41,10 @@ public class ApplicationConfig extends Configuration {
         return Activity.of(Activity.ActivityType.valueOf(ACTIVITY_TYPE), ACTIVITY);
     }
 
-    public void updateActivity(JDA jda, @Nullable Activity.ActivityType activityType, @Nullable String activity) throws IOException {
-        setValue("ACTIVITY_TYPE", activityType != null ? activityType.name() : null);
-        setValue("ACTIVITY", activity);
-        save();
+    public void updateActivity(JDA jda, @Nullable Activity.ActivityType activityType, @Nullable String activity) throws IOException, IllegalAccessException {
+        ACTIVITY_TYPE = activityType != null ? activityType.name() : null;
+        ACTIVITY = activity;
+        saveAll();
 
         jda.getPresence().setActivity(formatActivity());
     }

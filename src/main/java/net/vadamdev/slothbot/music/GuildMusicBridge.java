@@ -14,12 +14,12 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.managers.AudioManager;
-import net.vadamdev.dbk.framework.interactive.api.components.InteractiveComponent;
-import net.vadamdev.dbk.framework.interactive.api.registry.MessageRegistry;
-import net.vadamdev.dbk.framework.interactive.entities.buttons.InteractiveButton;
-import net.vadamdev.dbk.framework.interactive.entities.dropdowns.InteractiveStringSelectMenu;
-import net.vadamdev.dbk.framework.menu.InteractiveComponentMenu;
-import net.vadamdev.dbk.framework.menu.InvalidateActions;
+import net.vadamdev.dbk.interactive.api.components.InteractiveComponent;
+import net.vadamdev.dbk.interactive.api.registry.MessageRegistry;
+import net.vadamdev.dbk.interactive.entities.buttons.InteractiveButton;
+import net.vadamdev.dbk.interactive.entities.dropdowns.InteractiveStringSelectMenu;
+import net.vadamdev.dbk.menu.InteractiveComponentMenu;
+import net.vadamdev.dbk.menu.InvalidateActions;
 import net.vadamdev.slothbot.SlothBot;
 import net.vadamdev.slothbot.music.audio.AudioLoadResultAdapter;
 import net.vadamdev.slothbot.music.audio.LavaSendHandler;
@@ -195,7 +195,7 @@ public record GuildMusicBridge(String guildId, AudioPlayer audioPlayer, TrackSch
                         .addEmbed(EmbedUtils.defaultSuccess(description.toString()).build())
                         .addActionRow(selectMenu)
                         .addActionRow(cancelButton)
-                        .setTimeout(SEARCH_CONFIRM_TIMEOUT_DELAY, SEARCH_CONFIRM_TIMEOUT_UNIT)
+                        .setTimeout(SEARCH_CONFIRM_TIMEOUT_DELAY, SEARCH_CONFIRM_TIMEOUT_UNIT, SlothBot.getScheduledExecutorMonoThread())
                         .onInvalidate(InvalidateActions.DELETE_MESSAGE_ON_INVALIDATE)
                         .build();
 

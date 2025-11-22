@@ -3,11 +3,11 @@ package net.vadamdev.slothbot;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.vadamdev.dbk.framework.DBKFramework;
-import net.vadamdev.dbk.framework.application.JDABot;
-import net.vadamdev.dbk.framework.application.annotations.AppConfig;
-import net.vadamdev.dbk.framework.application.annotations.Bot;
-import net.vadamdev.dbk.framework.config.ConfigurationLoader;
+import net.vadamdev.dbk.DBKApplication;
+import net.vadamdev.dbk.application.JDABot;
+import net.vadamdev.dbk.application.annotations.AppConfig;
+import net.vadamdev.dbk.application.annotations.Bot;
+import net.vadamdev.dbk.config.loader.ConfigurationLoader;
 import net.vadamdev.slothbot.channelcreator.LockeableCreatedChannel;
 import net.vadamdev.slothbot.channelcreator.SimpleChannelCreator;
 import net.vadamdev.slothbot.channelcreator.system.ChannelCreatorManager;
@@ -22,6 +22,8 @@ import net.vadamdev.slothbot.rolereaction.RoleReaction;
 import net.vadamdev.slothbot.rolereaction.RoleReactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author VadamDev
@@ -120,11 +122,15 @@ public class SlothBot extends JDABot {
 
     @Bot
     private static final SlothBot INSTANCE = new SlothBot();
-
     public static SlothBot get() { return INSTANCE; }
     public static Logger getLogger() { return INSTANCE.logger; }
 
+    private static DBKApplication dbkApplication;
+    public static void stop() { dbkApplication.stop(); }
+    public static ScheduledExecutorService getScheduledExecutorMonoThread() { return dbkApplication.getScheduledExecutorMonoThread(); }
+
     public static void main(String[] args) {
-        DBKFramework.launch(SlothBot.class, INSTANCE.logger);
+        dbkApplication = DBKApplication.of(SlothBot.class, INSTANCE.logger);
+        dbkApplication.start();
     }
 }

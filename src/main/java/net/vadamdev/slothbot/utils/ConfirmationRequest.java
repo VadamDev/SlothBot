@@ -8,10 +8,11 @@ import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteract
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.internal.utils.Checks;
-import net.vadamdev.dbk.framework.interactive.InteractiveComponents;
-import net.vadamdev.dbk.framework.interactive.api.registry.MessageRegistry;
-import net.vadamdev.dbk.framework.interactive.entities.buttons.InteractiveButton;
-import net.vadamdev.dbk.framework.menu.InteractiveComponentMenu;
+import net.vadamdev.dbk.interactive.InteractiveComponents;
+import net.vadamdev.dbk.interactive.api.registry.MessageRegistry;
+import net.vadamdev.dbk.interactive.entities.buttons.InteractiveButton;
+import net.vadamdev.dbk.menu.InteractiveComponentMenu;
+import net.vadamdev.slothbot.SlothBot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +97,7 @@ public class ConfirmationRequest {
         }
 
         public Builder timeout(long timeout, TimeUnit unit) {
-            menuBuilder.setTimeout(timeout, unit);
+            menuBuilder.setTimeout(timeout, unit, SlothBot.getScheduledExecutorMonoThread());
             return this;
         }
 

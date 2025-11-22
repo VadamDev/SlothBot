@@ -2,7 +2,7 @@ package net.vadamdev.slothbot.commands.api;
 
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.vadamdev.dbk.framework.commands.GuildSlashCommand;
+import net.vadamdev.dbk.commands.GuildSlashCommand;
 import net.vadamdev.slothbot.SlothBot;
 
 /**

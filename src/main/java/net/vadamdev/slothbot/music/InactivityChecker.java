@@ -2,7 +2,6 @@ package net.vadamdev.slothbot.music;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
-import net.vadamdev.dbk.framework.DBKFramework;
 import net.vadamdev.slothbot.SlothBot;
 
 import java.util.HashMap;
@@ -25,7 +24,7 @@ public class InactivityChecker {
 
         this.idleTimes = new HashMap<>();
 
-        DBKFramework.getScheduledExecutorMonoThread().scheduleAtFixedRate(this::cleanup, 0, 1, TimeUnit.SECONDS);
+        SlothBot.getScheduledExecutorMonoThread().scheduleAtFixedRate(this::cleanup, 0, 1, TimeUnit.SECONDS);
     }
 
     private void cleanup() {

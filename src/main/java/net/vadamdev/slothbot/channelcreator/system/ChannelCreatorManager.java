@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.vadamdev.dbk.framework.tuple.ImmutablePair;
+import net.vadamdev.dbk.tuple.ImmutablePair;
 
 import java.util.*;
 
@@ -53,7 +53,7 @@ public class ChannelCreatorManager extends ListenerAdapter {
 
     public void deleteCreatedChannel(Guild guild, String channelId) {
         findCreatedChannel(channelId).ifPresent(pair -> {
-            final CreatedChannel createdChannel = pair.getRight();
+            final CreatedChannel createdChannel = pair.right();
 
             final VoiceChannel voiceChannel = guild.getVoiceChannelById(channelId);
             createdChannel.onChannelDeletion(voiceChannel);
@@ -61,7 +61,7 @@ public class ChannelCreatorManager extends ListenerAdapter {
             if(voiceChannel != null)
                 voiceChannel.delete().queue();
 
-            createdChannels.computeIfPresent(pair.getLeft(), (k, channels) -> {
+            createdChannels.computeIfPresent(pair.left(), (k, channels) -> {
                 channels.remove(createdChannel);
                 return channels.isEmpty() ? null : channels;
             });

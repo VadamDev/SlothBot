@@ -8,8 +8,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
-import net.vadamdev.dbk.framework.commands.annotations.AnnotationProcessor;
-import net.vadamdev.dbk.framework.commands.annotations.CommandProcessor;
+import net.vadamdev.dbk.commands.annotations.AnnotatedCommandDispatcher;
+import net.vadamdev.dbk.commands.annotations.SubCommand;
 import net.vadamdev.slothbot.ApplicationConfig;
 import net.vadamdev.slothbot.commands.api.GuildLinkedCommand;
 import net.vadamdev.slothbot.utils.EmbedUtils;
@@ -23,16 +23,20 @@ import java.io.IOException;
  * @since 09/06/2023
  */
 public class ActivityCommand extends GuildLinkedCommand {
+    private final AnnotatedCommandDispatcher dispatcher;
+
     private final ApplicationConfig appConfig;
 
     public ActivityCommand(ApplicationConfig appConfig) {
         super("activity", "Permet de changer l'activité du bot");
         setRequiredPermissions(Permission.MESSAGE_MANAGE);
 
+        this.dispatcher = new AnnotatedCommandDispatcher(this);
+
         this.appConfig = appConfig;
     }
 
-    @CommandProcessor(subCommand = "set")
+    @SubCommand(name = "set")
     private void set(SlashCommandInteractionEvent event) {
         final Activity.ActivityType type = event.getOption("type", mapping -> {
             final String typeString = mapping.getAsString();
@@ -44,7 +48,7 @@ public class ActivityCommand extends GuildLinkedCommand {
             }
         });
 
-        updateStatus(event, type, event.getOption("activity", "Sea of Thieves", mapping -> {
+        updateStatus(event, type, event.getOption("activity", "Minecraft", mapping -> {
             final String input = mapping.getAsString();
 
             if(input.length() > 128)
@@ -54,7 +58,7 @@ public class ActivityCommand extends GuildLinkedCommand {
         }).substring(0, 128));
     }
 
-    @CommandProcessor(subCommand = "reset")
+    @SubCommand(name = "reset")
     private void reset(SlashCommandInteractionEvent event) {
         updateStatus(event, null, null);
     }
@@ -68,7 +72,7 @@ public class ActivityCommand extends GuildLinkedCommand {
 
             event.replyEmbeds(EmbedUtils.defaultSuccess("L'activité du bot a été mis à jour.")
                     .setTitle("JafarBot - Activité").build()).queue();
-        }catch (IOException e) {
+        }catch (IOException | IllegalAccessException e) {
             e.printStackTrace();
 
             event.replyEmbeds(EmbedUtils.defaultError("Une erreur est survenue.")
@@ -98,6 +102,6 @@ public class ActivityCommand extends GuildLinkedCommand {
 
     @Override
     public void executeCommand(Member sender, SlashCommandInteractionEvent event) {
-        AnnotationProcessor.processAnnotations(event, this);
+        dispatcher.onCommand(event);
     }
 }

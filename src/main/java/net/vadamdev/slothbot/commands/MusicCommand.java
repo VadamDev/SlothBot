@@ -16,8 +16,8 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.managers.AudioManager;
-import net.vadamdev.dbk.framework.commands.annotations.AnnotationProcessor;
-import net.vadamdev.dbk.framework.commands.annotations.CommandProcessor;
+import net.vadamdev.dbk.commands.annotations.AnnotatedCommandDispatcher;
+import net.vadamdev.dbk.commands.annotations.SubCommand;
 import net.vadamdev.slothbot.SlothBot;
 import net.vadamdev.slothbot.commands.api.GuildLinkedCommand;
 import net.vadamdev.slothbot.configs.MainConfig;
@@ -36,17 +36,21 @@ import java.util.List;
  * @since 13/05/2025
  */
 public class MusicCommand extends GuildLinkedCommand {
+    private final AnnotatedCommandDispatcher dispatcher;
+
     private final MainConfig mainConfig;
     private final GuildMusicManager musicManager;
 
     public MusicCommand(MainConfig mainConfig, GuildMusicManager musicManager) {
         super("music", "PLACEHOLDER");
 
+        this.dispatcher = new AnnotatedCommandDispatcher(this);
+
         this.mainConfig = mainConfig;
         this.musicManager = musicManager;
     }
 
-    @CommandProcessor(subCommand = "play")
+    @SubCommand(name = "play")
     private void play(SlashCommandInteractionEvent event) {
         final String source = event.getOption("source", mapping -> {
             final String input = mapping.getAsString();
@@ -56,7 +60,7 @@ public class MusicCommand extends GuildLinkedCommand {
         playOrQueue(event ,source);
     }
 
-    @CommandProcessor(subCommand = "search")
+    @SubCommand(name = "search")
     private void search(SlashCommandInteractionEvent event) {
         final String source = event.getOption("platform", OptionMapping::getAsString) + event.getOption("source", OptionMapping::getAsString);
         playOrQueue(event, source);
@@ -77,7 +81,7 @@ public class MusicCommand extends GuildLinkedCommand {
         });
     }
 
-    @CommandProcessor(subCommand = "skip")
+    @SubCommand(name = "skip")
     private void skip(SlashCommandInteractionEvent event) {
         final TrackScheduler trackScheduler = musicManager.getOrCreate(event.getGuild()).trackScheduler();
         if(!trackScheduler.isPlaying()) {
@@ -101,7 +105,7 @@ public class MusicCommand extends GuildLinkedCommand {
         }
     }
 
-    @CommandProcessor(subCommand = "loop")
+    @SubCommand(name = "loop")
     private void loop(SlashCommandInteractionEvent event) {
         final TrackScheduler trackScheduler = musicManager.getOrCreate(event.getGuild()).trackScheduler();
         trackScheduler.repeatCurrentTrack = !trackScheduler.repeatCurrentTrack;
@@ -115,7 +119,7 @@ public class MusicCommand extends GuildLinkedCommand {
         event.replyEmbeds(embed.build()).queue();
     }
 
-    @CommandProcessor(subCommand = "nowplaying")
+    @SubCommand(name = "nowplaying")
     private void nowplaying(SlashCommandInteractionEvent event) {
         final AudioPlayer audioPlayer = musicManager.getOrCreate(event.getGuild()).audioPlayer();
         final AudioTrack track = audioPlayer.getPlayingTrack();
@@ -150,7 +154,7 @@ public class MusicCommand extends GuildLinkedCommand {
         event.replyEmbeds(embed.build()).queue();
     }
 
-    @CommandProcessor(subCommand = "queue")
+    @SubCommand(name = "queue")
     private void queue(SlashCommandInteractionEvent event) {
         final TrackScheduler trackScheduler = musicManager.getOrCreate(event.getGuild()).trackScheduler();
 
@@ -178,7 +182,7 @@ public class MusicCommand extends GuildLinkedCommand {
         event.replyEmbeds(EmbedUtils.defaultSuccess(description.toString()).setTitle("\uD83C\uDFA7┃Musique").build()).queue();
     }
 
-    @CommandProcessor(subCommand = "shuffle")
+    @SubCommand(name = "shuffle")
     private void shuffle(SlashCommandInteractionEvent event) {
         final TrackScheduler trackScheduler = musicManager.getOrCreate(event.getGuild()).trackScheduler();
 
@@ -191,7 +195,7 @@ public class MusicCommand extends GuildLinkedCommand {
         event.replyEmbeds(EmbedUtils.defaultSuccess("La file d'attente a été mélanger").setTitle("\uD83C\uDFA7┃Musique").build()).queue();
     }
 
-    @CommandProcessor(subCommand = "volume")
+    @SubCommand(name = "volume")
     private void volume(SlashCommandInteractionEvent event) {
         final AudioPlayer audioPlayer = musicManager.getOrCreate(event.getGuild()).audioPlayer();
 
@@ -207,7 +211,7 @@ public class MusicCommand extends GuildLinkedCommand {
         event.replyEmbeds(EmbedUtils.defaultSuccess("Le volume est maintenant à ``" + newVolume + "%``.").setTitle("\uD83C\uDFA7┃Musique").build()).queue();
     }
 
-    @CommandProcessor(subCommand = "pause")
+    @SubCommand(name = "pause")
     private void pause(SlashCommandInteractionEvent event) {
         final AudioPlayer audioPlayer = musicManager.getOrCreate(event.getGuild()).audioPlayer();
 
@@ -220,7 +224,7 @@ public class MusicCommand extends GuildLinkedCommand {
             event.replyEmbeds(EmbedUtils.defaultSuccess("La musique a été mise sur pause !").setTitle("\uD83C\uDFA7┃Musique").build()).queue();
     }
 
-    @CommandProcessor(subCommand = "purge")
+    @SubCommand(name = "purge")
     private void purge(SlashCommandInteractionEvent event) {
         final TrackScheduler trackScheduler = musicManager.getOrCreate(event.getGuild()).trackScheduler();
         if(trackScheduler.isQueueEmpty()) {
@@ -232,7 +236,7 @@ public class MusicCommand extends GuildLinkedCommand {
         event.replyEmbeds(EmbedUtils.defaultSuccess("La file d'attente a été supprimée !").setTitle("\uD83C\uDFA7┃Musique").build()).queue();
     }
 
-    @CommandProcessor(subCommand = "leave")
+    @SubCommand(name = "leave")
     private void leave(SlashCommandInteractionEvent event) {
         final Guild guild = event.getGuild();
         final GuildMusicBridge bridge = musicManager.getOrCreate(guild);
@@ -288,6 +292,6 @@ public class MusicCommand extends GuildLinkedCommand {
             return;
         }
 
-        AnnotationProcessor.processAnnotations(event, this);
+        dispatcher.onCommand(event);
     }
 }

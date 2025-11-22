@@ -2,7 +2,7 @@ package net.vadamdev.slothbot.music.audio.sources;
 
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.clients.Web;
-import net.vadamdev.dbk.framework.DBKFramework;
+import net.vadamdev.slothbot.SlothBot;
 import org.jetbrains.annotations.Nullable;
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.YamlFile;
@@ -26,7 +26,7 @@ public enum YoutubeAudioHandlerType {
 
                 youtube.useOauth2(token, false);
 
-                DBKFramework.getScheduledExecutorMonoThread().scheduleAtFixedRate(() -> {
+                SlothBot.getScheduledExecutorMonoThread().scheduleAtFixedRate(() -> {
                     final YamlFile yamlFile = AudioSourcesLoader.YAML_FILE;
                     if(!yamlFile.exists())
                         return;
