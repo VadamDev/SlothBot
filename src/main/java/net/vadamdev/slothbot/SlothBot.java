@@ -23,6 +23,7 @@ import net.vadamdev.slothbot.rolereaction.RoleReactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -39,6 +40,8 @@ public class SlothBot extends JDABot {
     private ChannelCreatorManager channelCreatorManager;
     private GuildMusicManager musicManager;
 
+    private ScheduledExecutorService scheduledExecutor;
+
     SlothBot() {
         super(() -> JDABuilder.createDefault(APP_CONFIG.TOKEN)
                 .setActivity(APP_CONFIG.formatActivity()));
@@ -54,6 +57,8 @@ public class SlothBot extends JDABot {
     protected void onStart() throws Exception {
         final Guild guild = guildLinkService.init(jda).waitCompleteLink();
         logger.info("Linked to guild: " + guild.getName() + " (" + guild.getId() + ") !");
+
+        scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 
         //Load main configuration
         ConfigurationLoader.loadConfiguration(mainConfig);
@@ -75,7 +80,9 @@ public class SlothBot extends JDABot {
     }
 
     @Override
-    protected void onStop() {}
+    protected void onStop() {
+        scheduledExecutor.shutdown();
+    }
 
     private void registerRoleReactions() {
         roleReactionManager.addRoleReaction(new RoleReaction(
@@ -127,10 +134,10 @@ public class SlothBot extends JDABot {
 
     private static DBKApplication dbkApplication;
     public static void stop() { dbkApplication.stop(); }
-    public static ScheduledExecutorService getScheduledExecutorMonoThread() { return dbkApplication.getScheduledExecutorMonoThread(); }
+
+    public static ScheduledExecutorService getScheduledExecutorMonoThread() { return INSTANCE.scheduledExecutor; }
 
     public static void main(String[] args) {
-        dbkApplication = DBKApplication.of(SlothBot.class, INSTANCE.logger);
-        dbkApplication.start();
+        dbkApplication = DBKApplication.run(SlothBot.class, INSTANCE.logger);
     }
 }

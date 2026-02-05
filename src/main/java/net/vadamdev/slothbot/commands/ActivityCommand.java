@@ -55,7 +55,7 @@ public class ActivityCommand extends GuildLinkedCommand {
                 return input.substring(0, 128);
 
             return input;
-        }).substring(0, 128));
+        }));
     }
 
     @SubCommand(name = "reset")
@@ -71,12 +71,12 @@ public class ActivityCommand extends GuildLinkedCommand {
                 appConfig.updateActivity(event.getJDA(), type, activity);
 
             event.replyEmbeds(EmbedUtils.defaultSuccess("L'activité du bot a été mis à jour.")
-                    .setTitle("JafarBot - Activité").build()).queue();
+                    .setTitle("Slothy - Activité").build()).queue();
         }catch (IOException | IllegalAccessException e) {
             e.printStackTrace();
 
             event.replyEmbeds(EmbedUtils.defaultError("Une erreur est survenue.")
-                    .setTitle("JafarBot - Activité").build()).queue();
+                    .setTitle("Slothy - Activité").build()).queue();
         }
     }
 
