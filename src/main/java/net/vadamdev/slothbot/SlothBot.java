@@ -1,6 +1,8 @@
 package net.vadamdev.slothbot;
 
+import club.minnced.discord.jdave.interop.JDaveSessionFactory;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.audio.AudioModuleConfig;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.vadamdev.dbk.DBKApplication;
@@ -44,6 +46,7 @@ public class SlothBot extends JDABot {
 
     SlothBot() {
         super(() -> JDABuilder.createDefault(APP_CONFIG.TOKEN)
+                .setAudioModuleConfig(new AudioModuleConfig().withDaveSessionFactory(new JDaveSessionFactory()))
                 .setActivity(APP_CONFIG.formatActivity()));
 
         this.logger = LoggerFactory.getLogger(SlothBot.class);

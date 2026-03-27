@@ -63,7 +63,7 @@ public enum AudioSources {
                     new WebWithThumbnail(), new MWebWithThumbnail(), new WebEmbeddedWithThumbnail(), //Web
                     new AndroidMusicWithThumbnail(), new AndroidVrWithThumbnail(), //Android
                     new IosWithThumbnail(), //Ios
-                    new Tv(), new TvHtml5EmbeddedWithThumbnail() //Tv, REQUIRE OAUTH
+                    new Tv(), new TvHtml5SimplyWithThumbnail() //Tv, REQUIRE OAUTH
 
             );
 

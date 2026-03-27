@@ -2,6 +2,9 @@ package net.vadamdev.slothbot;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -9,9 +12,7 @@ import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.vadamdev.dbk.interactive.entities.buttons.InteractiveButton;
-import net.vadamdev.dbk.interactive.entities.buttons.LightweightButton;
+import net.vadamdev.dbk.components.entities.button.SmartButton;
 import net.vadamdev.slothbot.utils.EmbedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class GuildLinkService {
 
     private JDA jda;
 
-    private LightweightButton linkButton, cancelButton;
+    private Button linkButton, cancelButton;
 
     public GuildLinkService(ApplicationConfig appConfig) {
         this.appConfig = appConfig;
@@ -75,8 +76,8 @@ public class GuildLinkService {
             logger.info("No linked guild found, sending link request messages...");
 
             //Create buttons
-            linkButton = InteractiveButton.of(ButtonStyle.SUCCESS)
-                    .addRequiredPermission(MISSING_PERMISSION_ACTION, LINK_PERMISSION)
+            linkButton = SmartButton.builder(ButtonStyle.SUCCESS)
+                    .requiredPermission(MISSING_PERMISSION_ACTION, LINK_PERMISSION)
                     .label("Link")
                     .emoji(Emoji.fromUnicode("\uD83D\uDD0C"))
                     .action((event, invalidatable) -> {
@@ -92,17 +93,17 @@ public class GuildLinkService {
                         event.reply("Successfully linked to " + guild.getName() + " (" + guild.getId() + ") !").setEphemeral(true).complete();
                         event.getMessage().delete().complete();
                         link(guild);
-                    }).lightweight(jda);
+                    }).buildStatic(jda);
 
-            cancelButton = InteractiveButton.of(ButtonStyle.DANGER)
-                    .addRequiredPermission(MISSING_PERMISSION_ACTION, LINK_PERMISSION)
+            cancelButton = SmartButton.builder(ButtonStyle.DANGER)
+                    .requiredPermission(MISSING_PERMISSION_ACTION, LINK_PERMISSION)
                     .label("Cancel")
                     .emoji(Emoji.fromUnicode("\uD83D\uDCA5"))
                     .action((event, invalidatable) -> {
                         event.reply("Link request cancelled. Leaving the server...").setEphemeral(true).complete();
                         event.getMessage().delete().complete();
                         event.getGuild().leave().queue();
-                    }).lightweight(jda);
+                    }).buildStatic(jda);
 
             //Send link request messages to all guilds
             for(Guild guild : jda.getGuilds()) {
@@ -176,7 +177,9 @@ public class GuildLinkService {
                         
                         ⚠️ Note that this action cannot be undone !
                         """
-                ).setFooter("This is an automated message.").build()).setActionRow(linkButton, cancelButton).queue();
+                ).setFooter("This is an automated message.").build())
+
+                .setComponents(ActionRow.of(linkButton, cancelButton)).queue();
     }
 
     /*

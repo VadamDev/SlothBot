@@ -1,18 +1,21 @@
 package net.vadamdev.slothbot.utils;
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.internal.utils.Checks;
-import net.vadamdev.dbk.interactive.InteractiveComponents;
-import net.vadamdev.dbk.interactive.api.registry.MessageRegistry;
-import net.vadamdev.dbk.interactive.entities.buttons.InteractiveButton;
-import net.vadamdev.dbk.menu.InteractiveComponentMenu;
+import net.vadamdev.dbk.components.SmartComponents;
+import net.vadamdev.dbk.components.api.registry.MessageRegistry;
+import net.vadamdev.dbk.components.entities.button.SmartButton;
+import net.vadamdev.dbk.menu.ActionComponentMenu;
 import net.vadamdev.slothbot.SlothBot;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +28,9 @@ import java.util.function.Predicate;
  * @since 02/04/2025
  */
 public class ConfirmationRequest {
-    protected final InteractiveComponentMenu menu;
+    protected final ActionComponentMenu menu;
 
-    protected ConfirmationRequest(InteractiveComponentMenu menu) {
+    protected ConfirmationRequest(ActionComponentMenu menu) {
         this.menu = menu;
     }
 
@@ -44,16 +47,18 @@ public class ConfirmationRequest {
     }
 
     public static class Builder {
-        private final InteractiveComponentMenu.Builder menuBuilder;
+        private final ActionComponentMenu.Builder menuBuilder;
 
         private final List<Permission> requiredPermissions;
         private final List<String> authorizedUserIds;
 
-        private Consumer<GenericComponentInteractionCreateEvent> onConfirm, onDeny;
-        private Button confirmButton, denyButton;
+        @Nullable private Consumer<ButtonInteractionEvent> onConfirm, onDeny;
+
+        @Nullable private ButtonStyle confirmButtonStyle, denyButtonStyle;
+        @Nullable private String confirmButtonLabel, denyButtonLabel;
 
         protected Builder() {
-            this.menuBuilder = InteractiveComponentMenu.builder();
+            this.menuBuilder = ActionComponentMenu.builder();
 
             this.requiredPermissions = new ArrayList<>();
             this.authorizedUserIds = new ArrayList<>();
@@ -77,15 +82,19 @@ public class ConfirmationRequest {
             return this;
         }
 
-        public Builder whenConfirmed(Button confirmButton, Consumer<GenericComponentInteractionCreateEvent> action) {
-            this.confirmButton = confirmButton;
+        public Builder whenConfirmed(ButtonStyle style, String label, Consumer<ButtonInteractionEvent> action) {
+            this.confirmButtonStyle = style;
+            this.confirmButtonLabel = label;
+
             this.onConfirm = action;
 
             return this;
         }
 
-        public Builder whenDenied(Button denyButton, Consumer<GenericComponentInteractionCreateEvent> action) {
-            this.denyButton = denyButton;
+        public Builder whenDenied(ButtonStyle style, String label, Consumer<ButtonInteractionEvent> action) {
+            this.denyButtonStyle = style;
+            this.denyButtonLabel = label;
+
             this.onDeny = action;
 
             return this;
@@ -97,7 +106,7 @@ public class ConfirmationRequest {
         }
 
         public Builder timeout(long timeout, TimeUnit unit) {
-            menuBuilder.setTimeout(timeout, unit, SlothBot.getScheduledExecutorMonoThread());
+            menuBuilder.timeout(timeout, unit, SlothBot.getScheduledExecutorMonoThread());
             return this;
         }
 
@@ -115,31 +124,37 @@ public class ConfirmationRequest {
         }
 
         public ConfirmationRequest build() {
-            Checks.check(onConfirm != null && confirmButton != null, "The confirm button must be set!");
+            Checks.check(onConfirm != null && confirmButtonStyle != null && confirmButtonLabel != null, "The confirm button must be set!");
 
             final Predicate<Member> memberPredicate = createMemberPredicate();
 
-            final MessageRegistry<Button> confirm = InteractiveButton.of(confirmButton, (event, invalidatable) -> {
-                if(!memberPredicate.test(event.getMember()))
-                    return;
+            final MessageRegistry<Button> confirm = SmartButton.builder(confirmButtonStyle)
+                    .label(confirmButtonLabel)
+                    .action((event, invalidatable) -> {
+                        if(!memberPredicate.test(event.getMember()))
+                            return;
 
-                InteractiveComponents.findComponentManager(event.getJDA())
-                        .ifPresent(manager -> manager.invalidateMessageAttachedComponents(event.getMessageIdLong()));
+                        SmartComponents.findComponentManager(event.getJDA())
+                                .ifPresent(manager -> manager.invalidateMessageAttachedComponents(event.getMessageId()));
 
-                onConfirm.accept(event);
-            });
+                        onConfirm.accept(event);
+                    })
+                    .build();
 
             MessageRegistry<Button> deny = null;
-            if(denyButton != null && onDeny != null) {
-                deny = InteractiveButton.of(denyButton, (event, invalidatable) -> {
-                    if(!memberPredicate.test(event.getMember()))
-                        return;
+            if(denyButtonStyle != null && denyButtonLabel != null && onDeny != null) {
+                deny = SmartButton.builder(denyButtonStyle)
+                        .label(denyButtonLabel)
+                        .action((event, invalidatable) -> {
+                            if(!memberPredicate.test(event.getMember()))
+                                return;
 
-                    InteractiveComponents.findComponentManager(event.getJDA())
-                            .ifPresent(manager -> manager.invalidateMessageAttachedComponents(event.getMessageIdLong()));
+                            SmartComponents.findComponentManager(event.getJDA())
+                                    .ifPresent(manager -> manager.invalidateMessageAttachedComponents(event.getMessageId()));
 
-                    onDeny.accept(event);
-                });
+                            onDeny.accept(event);
+                        })
+                        .build();
             }
 
             if(deny != null)

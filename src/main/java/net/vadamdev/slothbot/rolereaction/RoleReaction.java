@@ -1,13 +1,17 @@
 package net.vadamdev.slothbot.rolereaction;
 
+import net.dv8tion.jda.api.components.ActionComponent;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.vadamdev.slothbot.utils.EmbedUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -36,11 +40,12 @@ public class RoleReaction {
     }
 
     public void sendMessage(TextChannel textChannel) {
-        final var components = new ItemComponent[options.length];
-        for (int i = 0; i < options.length; i++)
-            components[i] = options[i].toButton(id);
+        final List<ActionRowChildComponent> components = new ArrayList<>();
+        for (RoleOption option : options)
+            components.add(option.toButton(id));
 
-        textChannel.sendMessageEmbeds(createEmbed(textChannel.getGuild())).setActionRow(components).queue();
+        textChannel.sendMessageEmbeds(createEmbed(textChannel.getGuild()))
+                .setComponents(ActionRow.of(components)).queue();
     }
 
     protected MessageEmbed createEmbed(Guild guild) {

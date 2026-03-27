@@ -1,17 +1,18 @@
 package net.vadamdev.slothbot.channelcreator;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.components.ActionComponent;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.components.ActionComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.vadamdev.dbk.interactive.api.registry.MessageRegistry;
-import net.vadamdev.dbk.interactive.entities.buttons.InteractiveButton;
-import net.vadamdev.dbk.menu.InteractiveComponentMenu;
+import net.vadamdev.dbk.components.api.registry.MessageRegistry;
+import net.vadamdev.dbk.components.entities.button.SmartButton;
+import net.vadamdev.dbk.menu.ActionComponentMenu;
 import net.vadamdev.slothbot.SlothBot;
 import net.vadamdev.slothbot.channelcreator.system.CreatedChannel;
 import net.vadamdev.slothbot.utils.EmbedUtils;
@@ -27,7 +28,7 @@ public class LockeableCreatedChannel extends CreatedChannel {
             .setTitle("Salon Personnalisé")
             .setDescription("Vous pouvez interagir avec ces boutons seulement si vous êtes le propriétaire de ce salon !").build();
 
-    protected InteractiveComponentMenu menu;
+    protected ActionComponentMenu menu;
     private boolean locked;
 
     public LockeableCreatedChannel(String channelId, String ownerId) {
@@ -49,7 +50,7 @@ public class LockeableCreatedChannel extends CreatedChannel {
             menu.getCachedMessage().runIfExists(message -> {
                 menu.invalidate(jda);
 
-                final InteractiveComponentMenu newMenu = createConfigMenu(owner).build();
+                final ActionComponentMenu newMenu = createConfigMenu(owner).build();
                 newMenu.display(message).queue();
                 menu = newMenu;
             });
@@ -94,9 +95,9 @@ public class LockeableCreatedChannel extends CreatedChannel {
        Menu
      */
 
-    protected MessageRegistry<ActionComponent>[] createComponents(Member owner) {
+    protected MessageRegistry<ActionRowChildComponent>[] createComponents(Member owner) {
         return new MessageRegistry[] {
-                InteractiveButton.of(ButtonStyle.SECONDARY)
+                SmartButton.builder(ButtonStyle.SECONDARY)
                         .emoji(Emoji.fromUnicode(locked ? "\uD83D\uDD13" : "\uD83D\uDD12"))
                         .action((event, invalidatable) -> {
                             if(!isOwner(event.getMember(), event))
@@ -105,7 +106,8 @@ public class LockeableCreatedChannel extends CreatedChannel {
                             event.deferEdit().queue();
                             setLocked(event.getGuild(), !locked);
                         }).build(),
-                InteractiveButton.of(ButtonStyle.SECONDARY)
+
+                SmartButton.builder(ButtonStyle.SECONDARY)
                         .emoji(Emoji.fromUnicode("\uD83D\uDDD1"))
                         .action((event, invalidatable) -> {
                             if(!isOwner(event.getMember(), event))
@@ -143,8 +145,8 @@ public class LockeableCreatedChannel extends CreatedChannel {
                 )).build();
     }
 
-    protected InteractiveComponentMenu.Builder createConfigMenu(Member owner) {
-        return InteractiveComponentMenu.builder()
+    protected ActionComponentMenu.Builder createConfigMenu(Member owner) {
+        return ActionComponentMenu.builder()
                 .onInvalidate(null)
                 .addEmbed(createConfigMenuEmbed(owner))
                 .addActionRow(createComponents(owner));

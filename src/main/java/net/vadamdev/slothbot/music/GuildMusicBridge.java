@@ -6,20 +6,19 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.selections.SelectOption;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.emoji.EmojiUnion;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.managers.AudioManager;
-import net.vadamdev.dbk.interactive.api.components.InteractiveComponent;
-import net.vadamdev.dbk.interactive.api.registry.MessageRegistry;
-import net.vadamdev.dbk.interactive.entities.buttons.InteractiveButton;
-import net.vadamdev.dbk.interactive.entities.dropdowns.InteractiveStringSelectMenu;
-import net.vadamdev.dbk.menu.InteractiveComponentMenu;
-import net.vadamdev.dbk.menu.InvalidateActions;
+import net.vadamdev.dbk.components.api.registry.MessageRegistry;
+import net.vadamdev.dbk.components.entities.button.SmartButton;
+import net.vadamdev.dbk.components.entities.dropdowns.SmartStringSelectMenu;
+import net.vadamdev.dbk.menu.ActionComponentMenu;
+import net.vadamdev.dbk.menu.MenuInvalidateActions;
 import net.vadamdev.slothbot.SlothBot;
 import net.vadamdev.slothbot.music.audio.AudioLoadResultAdapter;
 import net.vadamdev.slothbot.music.audio.LavaSendHandler;
@@ -156,14 +155,12 @@ public record GuildMusicBridge(String guildId, AudioPlayer audioPlayer, TrackSch
                     );
                 }
 
-                final LazyAccessor<InteractiveComponentMenu> menuAccess = new LazyAccessor<>();
+                final LazyAccessor<ActionComponentMenu> menuAccess = new LazyAccessor<>();
 
-                final MessageRegistry<StringSelectMenu> selectMenu = InteractiveStringSelectMenu.of(
-                        StringSelectMenu.create(InteractiveComponent.generateComponentUID())
-                                .setPlaceholder("Sélectionnez un résultat")
-                                .addOptions(options).build(),
-
-                        (event, invalidatable) -> {
+                final var selectMenu = SmartStringSelectMenu.builder()
+                        .setPlaceholder("Sélectionnez un résultat")
+                        .addOptions(options)
+                        .action((event, invalidatable) -> {
                             try {
                                 final int selectedIndex = Integer.parseInt(event.getSelectedOptions().getFirst().getValue());
                                 if(selectedIndex < 0 || selectedIndex >= tracks.size())
@@ -181,22 +178,21 @@ public record GuildMusicBridge(String guildId, AudioPlayer audioPlayer, TrackSch
 
                                 future.complete(true);
                             }catch (Exception ignored) {}
-                        }
-                );
+                        }).build();
 
-                final MessageRegistry<Button> cancelButton = InteractiveButton.of(ButtonStyle.DANGER)
+                final MessageRegistry<Button> cancelButton = SmartButton.builder(ButtonStyle.DANGER)
                         .label("Annuler")
                         .action((event, invalidatable) -> {
                             event.deferEdit().queue();
                             event.getMessage().delete().queue();
                         }).build();
 
-                final InteractiveComponentMenu menu = InteractiveComponentMenu.builder()
+                final ActionComponentMenu menu = ActionComponentMenu.builder()
                         .addEmbed(EmbedUtils.defaultSuccess(description.toString()).build())
                         .addActionRow(selectMenu)
                         .addActionRow(cancelButton)
-                        .setTimeout(SEARCH_CONFIRM_TIMEOUT_DELAY, SEARCH_CONFIRM_TIMEOUT_UNIT, SlothBot.getScheduledExecutorMonoThread())
-                        .onInvalidate(InvalidateActions.DELETE_MESSAGE_ON_INVALIDATE)
+                        .timeout(SEARCH_CONFIRM_TIMEOUT_DELAY, SEARCH_CONFIRM_TIMEOUT_UNIT, SlothBot.getScheduledExecutorMonoThread())
+                        .onInvalidate(MenuInvalidateActions.DELETE_MESSAGE)
                         .build();
 
                 menuAccess.set(menu);

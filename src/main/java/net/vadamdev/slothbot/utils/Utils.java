@@ -1,10 +1,9 @@
 package net.vadamdev.slothbot.utils;
 
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.EmojiUnion;
-import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.vadamdev.dbk.interactive.api.components.InteractiveComponent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -29,12 +28,12 @@ public final class Utils {
     private static final TimeUnit CONFIRMATION_TIMEOUT_UNIT = TimeUnit.MINUTES;
     private static final long CONFIRMATION_TIMEOUT_DELAY = 5;
 
-    public static ConfirmationRequest createDefaultConfirmationRequest(Consumer<GenericComponentInteractionCreateEvent> onConfirm) {
+    public static ConfirmationRequest createDefaultConfirmationRequest(Consumer<ButtonInteractionEvent> onConfirm) {
         final long timeoutTime = (System.currentTimeMillis() / 1000) + CONFIRMATION_TIMEOUT_UNIT.toSeconds(CONFIRMATION_TIMEOUT_DELAY);
 
         return ConfirmationRequest.builder()
                 .timeout(CONFIRMATION_TIMEOUT_DELAY, CONFIRMATION_TIMEOUT_UNIT)
-                .whenConfirmed(Button.success(InteractiveComponent.generateComponentUID(), "Confirmer"), onConfirm)
+                .whenConfirmed(ButtonStyle.SUCCESS, "Confirmer", onConfirm)
                 .addEmbed(EmbedUtils.defaultEmbed(Color.WHITE)
                         .setTitle("Êtes vous sur(e) de faire cela ?")
                         .setDescription(String.format(
